@@ -19,6 +19,7 @@ win = Tk()
 win.title("Nhận diện khuôn mặt")
 win_w = 1000
 win_h = int(0.72*win_w)
+win.resizable(False, False)
 
 frame1_w = win_w*0.6
 frame1_h = win_h
@@ -34,17 +35,25 @@ camera = True
 # If capture = True => chụp ảnh
 capture = False
 
+count = 0
+
 
 def startVideo():
-    global camera
+    global camera, count
+    path = base_path_image+name
+    if not os.path.exists(path):
+        os.makedirs(path)
+    count = len(os.listdir(path))
     camera = True
     show_frames()
 
 
 def endVideo():
-    global camera, labelVideo
+    global camera, labelVideo, name
+    name = ""
     labelVideo['image'] = defaultImage
     camera = False
+    reRenderImageButton()
 
 
 def takeAPhoto():
@@ -57,6 +66,32 @@ def save(file_name, img, path):
     os.chdir(path)
     # Lưu ảnh
     cv2.imwrite(file_name, img)
+
+
+name = ""
+base_path_image = 'D:\\K65-Computer Science-BKHN\\2022-1\\Nhap_mon_tri_tue_nhan_tao\\Project\\image\\'
+
+
+def getName():
+    top = tkinter.Toplevel(win)
+
+    top.title("window")
+    top.geometry("230x100")
+
+    label = tkinter.Label(top, text="Nhập tên:", font="Arial 16 bold")
+    label.place(relx=0.5, rely=0.2, anchor=N)
+
+    text = tkinter.Text(top, height=1, width=20)
+    text.place(relx=0.5, rely=0.5, anchor=N)
+
+    def get():
+        global name
+        name = text.get(1.0, END)[0:-1]
+        startVideo()
+        top.destroy()
+
+    button = tkinter.Button(top, text="OK", command=get)
+    button.place(relx=0.5, rely=0.8, anchor=N)
 
 
 win.geometry(f"{win_w}x{win_h}")
@@ -91,7 +126,9 @@ cap = cv2.VideoCapture(0)
 
 
 def show_frames():
-    global capture
+    global capture, name, count
+    new_path = base_path_image + name
+
     # Dừng video
     if camera == False:
         return
@@ -103,10 +140,13 @@ def show_frames():
     # Convert image to PhotoImage
     imgtk = ImageTk.PhotoImage(image=img)
     if capture:
+        count += 1
+        # tạo tên ảnh
+        file_name = name + str(count)+".png"
         print("Captured!")
         photoSave = cv2image
         photoSave = cv2.resize(src=photoSave, dsize=(640, 480))
-        save("save.png", photoSave, )
+        save(file_name, photoSave, new_path)
         # plt.imshow(photoSave, cmap='gray')
         # get img capture
         # end capture
@@ -163,38 +203,79 @@ frame1In2.place(relx=0.5, rely=0.44, anchor=N)
 
 size_image_display = int(0.08*win_h)
 bg_image_display = _from_rgb((160,  160, 160))
+load_img = (Image.open(
+    r"D:\K65-Computer Science-BKHN\2022-1\Nhap_mon_tri_tue_nhan_tao\Project\image_add_button.png"))
+load_img = load_img.resize(
+    (size_image_display, size_image_display), Image.ANTIALIAS)
+image_add_button_defailt = ImageTk.PhotoImage(load_img)
 addButton = tkinter.Button(
     frame1In2, text="+", font="Helvetica " + str(int(0.8*size_image_display))+" bold", justify=CENTER,
     fg="blue", bg=bg_image_display, relief=FLAT, height=size_image_display, width=size_image_display,
-    image=pixel, command=startVideo)
+    image=image_add_button_defailt, command=getName)
 
 addButton.place(relx=0, rely=0, anchor=NW)
 
+load_img = (Image.open(
+    r"D:\K65-Computer Science-BKHN\2022-1\Nhap_mon_tri_tue_nhan_tao\Project\image_button_default.png"))
+load_img = load_img.resize(
+    (size_image_display, size_image_display), Image.ANTIALIAS)
+image_button_defailt = ImageTk.PhotoImage(load_img)
+
+list_image = [image_button_defailt, image_button_defailt,
+              image_button_defailt, image_button_defailt, image_button_defailt]
+
 imageButton1 = tkinter.Button(
-    frame1In2, text="", bg=bg_image_display, relief=FLAT, height=size_image_display, width=size_image_display, image=pixel)
+    frame1In2, text="", bg=bg_image_display, relief=FLAT, height=size_image_display, width=size_image_display, image=list_image[0])
 
 imageButton1.place(relx=0.5, rely=0, anchor=N)
 
 imageButton2 = tkinter.Button(
-    frame1In2, text="", bg=bg_image_display, relief=FLAT, height=size_image_display, width=size_image_display, image=pixel)
+    frame1In2, text="", bg=bg_image_display, relief=FLAT, height=size_image_display, width=size_image_display, image=list_image[1])
 
 imageButton2.place(relx=1, rely=0, anchor=NE)
 
 imageButton3 = tkinter.Button(
-    frame1In2, text="", bg=bg_image_display, relief=FLAT, height=size_image_display, width=size_image_display, image=pixel)
+    frame1In2, text="", bg=bg_image_display, relief=FLAT, height=size_image_display, width=size_image_display, image=list_image[2])
 
 imageButton3.place(relx=0, rely=1, anchor=SW)
 
 imageButton4 = tkinter.Button(
-    frame1In2, text="", bg=bg_image_display, relief=FLAT, height=size_image_display, width=size_image_display, image=pixel)
+    frame1In2, text="", bg=bg_image_display, relief=FLAT, height=size_image_display, width=size_image_display, image=list_image[3])
 
 imageButton4.place(relx=0.5, rely=1, anchor=S)
 
 imageButton5 = tkinter.Button(
-    frame1In2, text="", bg=bg_image_display, relief=FLAT, height=size_image_display, width=size_image_display, image=pixel)
+    frame1In2, text="", bg=bg_image_display, relief=FLAT, height=size_image_display, width=size_image_display, image=list_image[4])
 
 imageButton5.place(relx=1, rely=1, anchor=SE)
 
+list_imageButton = [imageButton1, imageButton2,
+                    imageButton3, imageButton4, imageButton5]
+
+
+def reRenderImageButton():
+
+    folder_image = [os.path.join(base_path_image, f)
+                    for f in os.listdir(base_path_image)]
+    for i in range(len(folder_image)):
+        if (i > 4):
+            break
+        else:
+            path_folder = folder_image[i]
+            if not len(os.listdir(path_folder)):
+                continue
+            else:
+                image_path = os.path.join(
+                    path_folder, os.listdir(path_folder)[0])
+                load_img = (Image.open(
+                    image_path))
+                load_img = load_img.resize(
+                    (size_image_display, size_image_display), Image.ANTIALIAS)
+                list_image[i] = ImageTk.PhotoImage(load_img)
+                list_imageButton[i]['image'] = list_image[i]
+
+
+reRenderImageButton()
 
 # END Frame2
 win.mainloop()
