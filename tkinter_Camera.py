@@ -1,3 +1,4 @@
+import os
 from tkinter import *
 from tkinter.ttk import *
 from tkinter import messagebox
@@ -51,6 +52,13 @@ def takeAPhoto():
     capture = True
 
 
+def save(file_name, img, path):
+    # Set vị trí lưu ảnh
+    os.chdir(path)
+    # Lưu ảnh
+    cv2.imwrite(file_name, img)
+
+
 win.geometry(f"{win_w}x{win_h}")
 
 # Frame1
@@ -96,10 +104,9 @@ def show_frames():
     imgtk = ImageTk.PhotoImage(image=img)
     if capture:
         print("Captured!")
-        photoSave = img
+        photoSave = cv2image
         photoSave = cv2.resize(src=photoSave, dsize=(640, 480))
-        print(photoSave)
-        cv2.imwrite("saved.png", photoSave)
+        save("save.png", photoSave, )
         # plt.imshow(photoSave, cmap='gray')
         # get img capture
         # end capture
@@ -108,7 +115,7 @@ def show_frames():
     labelVideo.configure(image=imgtk)
 
     # Repeat after an interval to capture continiously
-    labelVideo.after(15, show_frames)
+    labelVideo.after(5, show_frames)
 
 
 # End video
