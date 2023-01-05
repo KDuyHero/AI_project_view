@@ -71,6 +71,7 @@ def switch(frame):
     elif (frame == nhan_dien):
         nhanDien()
     elif (frame == them_nguoi):
+        reRenderImageButton()
         themNguoi()
     frame.tkraise()
 
@@ -166,15 +167,17 @@ def themNguoi():
     tkinter.Label(f_them_nguoi_left,
                   text="Để thêm một khuôn mặt mới, nhấn vào biểu tượng dấu cộng ở màn hình bên tay phải",
                   font=font_content, anchor=W, wraplength=500, justify=LEFT).grid(row=2, column=0, columnspan=2, sticky=NW)
-    camera = tkinter.Label(f_them_nguoi_left, text="", image=default_them_nguoi).grid(
+    camera = tkinter.Label(f_them_nguoi_left, text="",
+                           image=default_them_nguoi)
+    camera.grid(
         column=0, row=3, columnspan=2, sticky=NW)
 
     captureButton = tkinter.Button(
-        f_them_nguoi_left, text="Chụp ảnh", font=font_header2, command="")
+        f_them_nguoi_left, text="Chụp ảnh", font=font_header2, command=takeAPhoto)
     captureButton.grid(column=0, row=4, columnspan=1, sticky=N)
 
     finishButton = tkinter.Button(
-        f_them_nguoi_left, text="Kết thúc", font=font_header2, command="")
+        f_them_nguoi_left, text="Kết thúc", font=font_header2, command=lambda: endVideo(camera))
     finishButton.grid(column=1, row=4, columnspan=1, sticky=N)
 
     # RIGHT
@@ -191,13 +194,13 @@ def themNguoi():
     tkinter.Label(f_them_nguoi_right, image=arow, bg=white, justify=CENTER).grid(
         column=0, row=1, columnspan=3, sticky=W)
 
-    tkinter.Button(f_them_nguoi_right, image=button_them_nguoi, relief=FLAT, command="").grid(
+    tkinter.Button(f_them_nguoi_right, image=button_them_nguoi, relief=FLAT, command=lambda: getName(camera)).grid(
         column=0, row=2, columnspan=1, sticky=NW)
 
     listButton = []
     for i in range(5):
         listButton.append(tkinter.Button(f_them_nguoi_right,
-                          image=default_empty, relief=FLAT))
+                          image=listImage[i], relief=FLAT))
 
     '''Set image for button'''
 
@@ -208,5 +211,124 @@ def themNguoi():
     listButton[4].grid(column=2, row=2, columnspan=1, sticky=SE)
 
 
-switch(nhan_dien)
+listImage = [default_empty, default_empty,
+             default_empty, default_empty, default_empty]
+
+
+def reRenderImageButton():
+    base_path_image = base_dir+"//image//"
+    folder_image = [os.path.join(base_path_image, f)
+                    for f in os.listdir(base_path_image)]
+    for i in range(len(folder_image)):
+        if (i > 4):
+            break
+        else:
+            path_folder = folder_image[i]
+            if not len(os.listdir(path_folder)):
+                continue
+            else:
+                image_path = os.path.join(
+                    path_folder, os.listdir(path_folder)[0])
+                load_img = (Image.open(
+                    image_path))
+                load_img = load_img.resize(
+                    (60, 60), Image.ANTIALIAS)
+                listImage[i] = ImageTk.PhotoImage(load_img)
+
+
+'''CAMERA'''
+cap = cv2.VideoCapture(0)
+start = False
+capture = False
+name = ""
+container_folder = ""
+count = 0
+
+# Define function to show frame
+
+
+def show_frames(camera):
+    global capture, container_folder, count, name
+    if start == False:
+        return
+    # Get the latest frame and convert into Image
+    cv2image = cv2.cvtColor(cap.read()[1], cv2.COLOR_BGR2RGB)
+    img = Image.fromarray(cv2image)
+    img = img.resize((560, int(3*560/4)), Image.ANTIALIAS)
+
+    # Convert image to PhotoImage
+    imgtk = ImageTk.PhotoImage(img)
+    camera.imgtk = imgtk
+    camera.configure(image=imgtk)
+
+    # cap window
+    if capture:
+        count += 1
+        # tạo tên ảnh
+        file_name = name + str(count)+".png"
+        photoSave = cv2image
+        photoSave = cv2.resize(src=photoSave, dsize=(640, 480))
+        save(file_name, photoSave, container_folder)
+        # plt.imshow(photoSave, cmap='gray')
+        # get img capture
+        # end capture
+        capture = False
+    # Repeat after an interval to capture continiously
+    camera.after(5, lambda: show_frames(camera))
+
+
+def startVideo(camera):
+    global start
+    start = True
+    show_frames(camera)
+
+
+def endVideo(camera):
+    global start
+    camera['image'] = default_them_nguoi
+    start = False
+    switch(them_nguoi)
+
+
+def takeAPhoto():
+    global capture
+    capture = True
+
+
+def save(file_name, img, path):
+    # Set vị trí lưu ảnh
+    os.chdir(path)
+    # Lưu ảnh
+    cv2.imwrite(file_name, img)
+
+
+def getName(camera):
+    top = tkinter.Toplevel(win)
+
+    top.title("window")
+    top.geometry("230x100")
+
+    label = tkinter.Label(top, text="Nhập tên:", font=font_header1)
+    label.place(relx=0.5, rely=0.2, anchor=N)
+
+    text = tkinter.Text(top, height=1, width=20)
+    text.place(relx=0.5, rely=0.5, anchor=N)
+
+    def get():
+        global container_folder, count, name
+        name = text.get(1.0, END)[0:-1]
+        container_folder = base_dir + "//image//" + name
+        if not os.path.exists(container_folder):
+            os.makedirs(container_folder)
+            count = 0
+        else:
+            count = len(os.listdir(container_folder))
+        startVideo(camera)
+        top.destroy()
+
+    button = tkinter.Button(top, text="OK", command=get)
+    button.place(relx=0.5, rely=0.8, anchor=N)
+
+
+switch(them_nguoi)
 win.mainloop()
