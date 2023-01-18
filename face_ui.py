@@ -124,16 +124,10 @@ def nhanDien():
     tkinter.Label(f_nhan_dien_left,
                   text="Đưa mặt vào trước camera để nhận diện",
                   font=font_content, anchor=W, wraplength=500, justify=LEFT).grid(row=2, column=0, columnspan=2, sticky=NW)
-    camera = tkinter.Label(f_nhan_dien_left, text="", image=default_them_nguoi).grid(
-        column=0, row=3, columnspan=2, sticky=NW)
+    camera = tkinter.Label(f_nhan_dien_left, text="", image=default_them_nguoi)
+    camera.grid(column=0, row=3, columnspan=2, sticky=NW)
 
-    # captureButton = tkinter.Button(
-    #     f_nhan_dien_left, text="Chụp ảnh", font=font_header2, command="")
-    # captureButton.grid(column=0, row=4, columnspan=1, sticky=N)
-
-    # finishButton = tkinter.Button(
-    #     f_nhan_dien_left, text="Kết thúc", font=font_header2, command="")
-    # finishButton.grid(column=1, row=4, columnspan=1, sticky=N)
+    startVideo(camera)
 
     # RIGHT
 
@@ -330,5 +324,5 @@ def getName(camera):
     button.place(relx=0.5, rely=0.8, anchor=N)
 
 
-switch(them_nguoi)
+switch(trang_chu)
 win.mainloop()
