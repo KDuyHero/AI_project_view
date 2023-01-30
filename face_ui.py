@@ -32,6 +32,11 @@ font_header2 = "Arial 16 bold"
 font_content = "Arial 12"
 
 # IMAGE
+bg_image = Image.open(base_dir+"//imageGUI//bg_app.jpg")
+bg_image = bg_image.resize(
+    (1000, 700), Image.ANTIALIAS)
+bg_image = ImageTk.PhotoImage(bg_image)
+
 default_them_nguoi = Image.open(base_dir+"//imageGUI//default_Image.png")
 default_them_nguoi = default_them_nguoi.resize(
     (560, int(3*560/4)), Image.ANTIALIAS)
@@ -63,9 +68,9 @@ for f in frames:
 
 
 def switch(frame):
-    # for f in frames:
-    #     for widget in f.winfo_children():
-    #         widget.destroy()
+    for f in frames:
+        for widget in f.winfo_children():
+            widget.destroy()
     if (frame == trang_chu):
         trangChu()
     elif (frame == nhan_dien):
@@ -78,20 +83,27 @@ def switch(frame):
 
 def trangChu():
     f_trang_chu = tkinter.Frame(
-        trang_chu, padx=100, pady=100, bg='lightblue')
+        trang_chu, padx=0, pady=0, bg='lightblue')
     f_trang_chu.place(
         relx=0, rely=0, relheight=1, relwidth=1, anchor=NW)
     f_trang_chu.grid_columnconfigure(0, weight=1)
     f_trang_chu.grid_columnconfigure(1, weight=1)
+    f_trang_chu.grid_columnconfigure(2, weight=1)
+    f_trang_chu.grid_columnconfigure(3, weight=1)
+    f_trang_chu.grid_columnconfigure(4, weight=1)
+    f_trang_chu.grid_columnconfigure(5, weight=1)
     f_trang_chu.grid_rowconfigure(0, weight=1)
     f_trang_chu.grid_rowconfigure(1, weight=1)
 
-    tkinter.Label(f_trang_chu, text="Chọn chức năng", font=font_header1).grid(
-        column=0, row=0, columnspan=2)
-    tkinter.Button(f_trang_chu, text="Nhận diện", font=font_header2, command=lambda: switch(
-        nhan_dien)).grid(column=0, row=1, columnspan=1, sticky=N)
-    tkinter.Button(f_trang_chu, text="Thêm người", font=font_header2, command=lambda: switch(
-        them_nguoi)).grid(column=1, row=1, columnspan=1, sticky=N)
+    tkinter.Label(f_trang_chu, image=bg_image, anchor=W).place(
+        relx=0, rely=0, relheight=1, relwidth=1, anchor=NW)
+
+    tkinter.Label(f_trang_chu, text="Chọn chức năng", font=font_header1, bg='#1CA7E4', fg="white").grid(
+        column=0, row=0, columnspan=6)
+    tkinter.Button(f_trang_chu, text="Nhận diện", font=font_header2,  bg="#1AAAEA", fg="white", command=lambda: switch(
+        nhan_dien)).grid(column=2, row=1, columnspan=1, sticky=N)
+    tkinter.Button(f_trang_chu, text="Thêm người", font=font_header2, bg="#1AAAEA", fg="white", command=lambda: switch(
+        them_nguoi)).grid(column=3, row=1, columnspan=1, sticky=N)
 
 
 def nhanDien():
